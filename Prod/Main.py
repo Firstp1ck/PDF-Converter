@@ -1,38 +1,57 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox
 from pdf2docx import Converter
+import logging
 
-def select_pdf():
+# Setup logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+def select_pdf() -> None:
+    """Select a PDF file to convert."""
     global pdf_path
     pdf_path = filedialog.askopenfilename(filetypes=[("PDF files", "*.pdf")])
-    pdf_entry.delete(0, tk.END)
-    pdf_entry.insert(0, pdf_path)
+    if pdf_path:
+        pdf_entry.delete(0, tk.END)
+        pdf_entry.insert(0, pdf_path)
+        logging.info(f"PDF file selected: {pdf_path}")
+    else:
+        logging.info("No PDF file selected.")
 
-def select_output():
+def select_output() -> None:
+    """Select the output path for the converted Word file."""
     global output_path
     output_path = filedialog.asksaveasfilename(defaultextension=".docx", filetypes=[("Word files", "*.docx")])
-    output_entry.delete(0, tk.END)
-    output_entry.insert(0, output_path)
+    if output_path:
+        output_entry.delete(0, tk.END)
+        output_entry.insert(0, output_path)
+        logging.info(f"Output path selected: {output_path}")
+    else:
+        logging.info("No output path selected.")
 
-def convert_pdf_to_word():
+def convert_pdf_to_word() -> None:
+    """Convert the selected PDF to a Word document."""
     if pdf_path and output_path:
         try:
+            logging.info("Conversion started.")
             converter = Converter(pdf_path)
             converter.convert(output_path, start=0, end=None)
             converter.close()
             messagebox.showinfo("Success", "PDF converted to Word successfully!")
+            logging.info("Conversion successful.")
         except Exception as e:
             messagebox.showerror("Error", str(e))
+            logging.error(f"Conversion failed: {e}")
     else:
         messagebox.showwarning("Warning", "Please select both PDF and output file paths.")
+        logging.warning("Conversion attempted without selecting files.")
 
 # Set up the Tkinter window
 window = tk.Tk()
 window.title("PDF to Word Converter")
 
 # Variables to hold file paths
-pdf_path = ""
-output_path = ""
+pdf_path: str = ""
+output_path: str = ""
 
 # Create the UI components
 pdf_label = tk.Label(window, text="PDF File:")
